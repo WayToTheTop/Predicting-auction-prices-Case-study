@@ -22,7 +22,7 @@ def ourLRMSE(y, yhat):
     log_diff = np.log(yhat+1) - np.log(y+1)
     return np.sqrt(np.mean(log_diff**2))
 
-def ourKfold(xdata, ydata, k = 5):
+def ourKfold(model, xdata, ydata, k = 5):
     #take the data and run through k-fold cross validation
     #record list of RMSE (one for each fold) and return RMSE list
     test_error = []
@@ -32,8 +32,8 @@ def ourKfold(xdata, ydata, k = 5):
         cvy_train, cvy_test = ydata[train_index], ydata[test_index]
 
         #call linear model
-        Bam = Linear_Model(cvx_train, cvy_train)
-        cvtest_predicted = Bam.predict(cvx_test)
+        model.fit(cvx_train, cvy_train)
+        cvtest_predicted = model.predict(cvx_test)
 
         test_error.append(ourLRMSE(cvy_test, cvtest_predicted))
     return np.mean(test_error)
