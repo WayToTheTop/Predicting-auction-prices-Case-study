@@ -22,7 +22,7 @@ def run(train_address, test_address):
 
     model = ridge_model()
     error = ourKfold(model, X, Y)
-    train_on_data(model, X, Y, X_test)
+    train_on_data(df_test, model, X, Y, X_test)
     return error
 
 
@@ -59,10 +59,12 @@ def ridge_model(alpha=0.5):
     ridge = Ridge(alpha=alpha)
     return ridge
 
-def train_on_data(model, X_train, Y_train, X_test):
+def train_on_data(df_test, model, X_train, Y_train, X_test):
     model.fit(X_train, Y_train)
     prediction = model.predict(X_test)
-    prediction.tofile('data/BELJ_predictions.csv', sep=',', format = '%10.5f')
+    df_test['SalePrice'] = map(int, prediction)
+    output = df_test[['SalesID', 'SalePrice']].set_index('SalesID')
+    output.to_csv('data/BELJ_predictions.csv', sep=',')
 
 
 if __name__ == '__main__':
