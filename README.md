@@ -55,4 +55,6 @@ This information was not given explicitly but might be extracted from data.
 
 Description
 ===========
-`run.py` trains linear model on the data in `data/Train.csv`and makes a prediction for `data/test.csv`. Predictions are saved to file `predictions.csv`.   
+`run.py` trains linear model on the data in `data/Train.csv` and makes a prediction for `data/test.csv`. Predictions are saved to file `predictions.csv`.
+
+All functions are in `ridge_model.py`.   
