@@ -9,7 +9,7 @@ configuration.  The data is sourced from auction result postings and includes in
 
 Evaluation
 ======================
-The evaluation of your model is based on Root Mean Squared Log Error.
+The evaluation of the model was based on Root Mean Squared Log Error.
 Which is computed as follows:
 
 ![Root Mean Squared Logarithmic Error](images/rmsle.png)
