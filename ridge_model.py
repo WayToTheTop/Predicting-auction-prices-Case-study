@@ -8,36 +8,34 @@ import matplotlib.pyplot as plt
 import statsmodels.api as sm
 import numpy as np
 
-
-def run(train_address, test_address):
+def loss(y, yhat):
     """
-    address - string filepath
+    Compute Root-mean-squared-log-error
+    INPUT:
+    y, yhat   : (numpy ndarrays) true and predicted targets
+    OTPUT:
+    (float)     : Root Mean Squared Log Error
     """
-
-    df = pd.read_csv(train_address,
-                parse_dates=['saledate'], infer_datetime_format=True)
-    df_test = pd.read_csv(test_address,
-                parse_dates=['saledate'], infer_datetime_format=True)
-    auct_list = df.auctioneerID.unique()
-    X, y = data_preproccessing(df, auct_list)
-    X_test = data_preproccessing(df_test, auct_list, is_test=True)
-    model = ridge_model()
-    error = ourKfold(model, X, y)
-    train_n_predict(df_test, model, X, y, X_test)
-    return error
-
-
-def ourLRMSE(y, yhat):
-    """Compute Root-mean-squared-error"""
+    # If predicted value is less then zero, we predict mininaml value for
+    #training data (4750)
     yhat[yhat < 0] = 4750
     log_diff = np.log(yhat+1) - np.log(y+1)
     return np.sqrt(np.mean(log_diff**2))
 
 def ourKfold(model, xdata, ydata, k = 5):
-    #take the data and run through k-fold cross validation
-    #record list of RMSE (one for each fold) and return RMSE list
+    '''
+    Cross validate model wiht k volds. Returns mean error over all folds.
+    INPUT:
+    model      : (sklearn model)
+    xdata      : (numpy ndarray)
+    ydata      : (numpy ndarray)
+    k          : (int) number of folds. Default is 5
+    OUTPUT
+    (float)    : (float) mean error of the model
+    '''
     test_error = []
     kfold = KFold(n_splits = k, shuffle = True)
+    #record list of RMSE (one for each fold) and return RMSE list
     for train_index, test_index in kfold.split(xdata):
         cvx_train, cvx_test = xdata[train_index], xdata[test_index]
         cvy_train, cvy_test = ydata[train_index], ydata[test_index]
@@ -46,18 +44,33 @@ def ourKfold(model, xdata, ydata, k = 5):
         model.fit(cvx_train, cvy_train)
         cvtest_predicted = model.predict(cvx_test)
 
-        test_error.append(ourLRMSE(cvy_test, cvtest_predicted))
+        test_error.append(loss(cvy_test, cvtest_predicted))
     return np.mean(test_error)
 
 
 def get_dummies(df, colname):
     """
-    colname - string
+    Dummifies column with colname in dataframe df
+    INPUT:
+    df:       (pandas DataFrame)
+    colname:  (str) name of the colomn in df to be dummified
+    OUTPUT:
+    dummies:  (pandas DataFrame)
     """
     dummies = pd.get_dummies(df[colname])
     return dummies
 
 def data_preproccessing(df, auct_list, is_test=False):
+    '''
+    Preprocess df for modeling.
+    INPUT:
+    df:        pandas DataFrame
+    auct_list: (list) list of unique actioneer IDs
+    is_test:   (bool) True if preporocessing test data, default is False.
+    OUTPUT:
+    X.values:  (numpy ndarray) predictors
+    y.values:  (numpy ndarray) target values (only if is_test=True)
+    '''
     condition = df.YearMade > 1900
     mode_year = df.YearMade[condition].mode()
     df.loc[~condition, 'YearMade'] = mode_year.values
@@ -77,17 +90,29 @@ def data_preproccessing(df, auct_list, is_test=False):
     return X.values, y.values
 
 def ridge_model(alpha=0.1):
+    '''
+    Creates Ridge Regression model with regularizing parameter alpha.
+    INPUT:
+    alpha:     (float) regularazing parameter
+    OUTPUT:
+    ridge:     (sklearn model)
+    '''
     ridge = Ridge(alpha=alpha)
     return ridge
 
 def train_n_predict(df_test, model, X_train, Y_train, X_test):
+    '''
+    Trains model on train data, makes predictions on test data, saves
+    predictions to file predictions.csv
+    INPUT:
+    df_test:    (pandas DataFrame) with test data
+    model:      (sklearn model) model for predictions
+    X_train:    (numpy ndarray) predictors data for training
+    Y_train:    (numpy ndarray) target data
+    X_test:     (numpy ndarray) predictors data for testing
+    '''
     model.fit(X_train, Y_train)
-    prediction = model.predict(X_test)
+    prediction (list)= model.predict(X_test)
     df_test['SalePrice'] = map(int, prediction)
     output = df_test[['SalesID', 'SalePrice']].set_index('SalesID')
-    output.to_csv('data/BELJ_predictions.csv', sep=',')
-
-
-if __name__ == '__main__':
-    print (run('data/Train.csv','data/test.csv'))
-    #X,y = (run('data/Train.csv','data/test.csv'))
+    output.to_csv('predictions.csv', sep=',')
