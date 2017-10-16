@@ -35,6 +35,7 @@ def ourKfold(model, xdata, ydata, k = 5):
     '''
     test_error = []
     kfold = KFold(n_splits = k, shuffle = True)
+
     #record list of RMSE (one for each fold) and return RMSE list
     for train_index, test_index in kfold.split(xdata):
         cvx_train, cvx_test = xdata[train_index], xdata[test_index]
@@ -71,15 +72,23 @@ def data_preproccessing(df, auct_list, is_test=False):
     X.values:  (numpy ndarray) predictors
     y.values:  (numpy ndarray) target values (only if is_test=True)
     '''
+    #If year made is less then 1900 repalce it with mode
     condition = df.YearMade > 1900
     mode_year = df.YearMade[condition].mode()
     df.loc[~condition, 'YearMade'] = mode_year.values
+
+    #Create 'age' feature
     df['age'] = df.saledate.dt.year - df.YearMade
+
+    #Dummify AuctioneerID
     df.auctioneerID.fillna(100., inplace=True)
     for col in auct_list:
         df[str(col)] = (df.auctioneerID == col)
+
     #Create 5 dummy varibales from ProductGroup
     X = get_dummies(df, 'ProductGroup')
+
+    #Create design matrix and target vector
     X.drop(labels=X.columns[-1],axis=1,inplace=True)
     X['age'] = df.age
     for col in auct_list:

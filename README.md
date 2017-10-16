@@ -1,7 +1,7 @@
 Regression Case Study
 ======================
 
-This is the model built by my team during Regression Case Study in Galvanize DSI program.
+This is a model built during Regression Case Study in Galvanize DSI program.
 
 The goal of the contest was to predict the sale price of a particular piece of
 heavy equipment at auction based on it's usage, equipment type, and
@@ -36,12 +36,12 @@ The following techniques were legal
 
 Results
 =============
-Having only 4 hours our to work on a problem, our team built a model that reduced
-baseline error by 16.5%. Our team got 2nd best score loosing only slightly to
+Having only 4 hours to work on a problem, our team built a model that reduced
+baseline error by 16.5%. We got 2nd best score loosing only slightly to
 the best model.
 
-On the base of our model we conclude that the main predictors for auction price are
-product group of the equipment, its age and the place of the auction (we used auctioneer ID as a proxy for location)
+On the base of our model we concluded that the main predictors for auction price were
+product group of the equipment, its age, and the place of the auction (we used auctioneer ID as a proxy for location)
 
 The largest challenge of the project was messy and sparse data.  We spent lots of
 time carefully engineering useful features and considering ways to deal with
